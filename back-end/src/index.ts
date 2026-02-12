@@ -19,10 +19,12 @@ import { seedInitialProducts } from "./services/productService.js";
 seedInitialProducts();
 
 // Routes
-import userRouter from "./routes/userRoute.js";
-app.use("/user", userRouter);
-import productRouter from "./routes/productRoute.js";
-app.use("/products", productRouter);
+import userRoute from "./routes/userRoute.js";
+import productRoute from "./routes/productRoute.js";
+import cartRoute from "./routes/cartRoute.js";
+app.use("/user", userRoute);
+app.use("/products", productRoute);
+app.use("/cart", cartRoute);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);

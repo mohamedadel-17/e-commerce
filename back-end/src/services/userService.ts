@@ -21,9 +21,17 @@ export const register = async ({
   }
 
   const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
-  const newUser = new userModel({ firstName, lastName, email, password: hashedPassword });
+  const newUser = new userModel({
+    firstName,
+    lastName,
+    email,
+    password: hashedPassword,
+  });
   await newUser.save();
-  return { data: generateToken({ firstName, lastName, email }), statusCode: 201 };
+  return {
+    data: generateToken({ firstName, lastName, email }),
+    statusCode: 201,
+  };
 };
 
 // Login function
@@ -41,7 +49,14 @@ export const login = async ({ email, password }: LoginParams) => {
   if (!passwordMatch) {
     return { data: "Incorrect email or password!", statusCode: 400 };
   }
-  return { data: generateToken({ firstName: findUser.firstName, lastName: findUser.lastName, email }), statusCode: 200 };
+  return {
+    data: generateToken({
+      firstName: findUser.firstName,
+      lastName: findUser.lastName,
+      email,
+    }),
+    statusCode: 200,
+  };
 };
 
 const generateToken = (data: any) => {
