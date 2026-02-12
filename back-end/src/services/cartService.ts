@@ -1,5 +1,5 @@
 import type { ObjectId } from "mongoose";
-import cartModel from "../models/cartModel.js";
+import cartModel, { type ICartItem } from "../models/cartModel.js";
 import productModel from "../models/productModel.js";
 
 // create a new cart for a user
@@ -23,6 +23,18 @@ export const getActiveCartForUser = async ({
     cart = await createCartForUser({ userId });
   }
   return { data: cart, statusCode: 200 };
+};
+
+// clear cart
+interface ClearCartParams {
+  userId: ObjectId;
+}
+export const clearCart = async ({ userId }: ClearCartParams) => {
+  const { data: cart } = await getActiveCartForUser({ userId });
+  cart.items = [];
+  cart.totalAmount = 0;
+  const updatedCart = await cart.save();
+  return { data: updatedCart, statusCode: 200 };
 };
 
 // add item to cart
@@ -108,18 +120,61 @@ export const updateCartItem = async ({
   const otherCartItems = cart.items.filter(
     (item) => item.productId.toString() !== productId,
   );
-  let totalAmountForOtherItems = otherCartItems.reduce(
-    (sum, item) => sum + item.unitPrice * item.quantity,
-    0,
-  );
+  let total = totalAmountForOtherItems({ cartItems: otherCartItems });
   // Update item quantity in cart
   existsInCart.quantity = quantity;
 
-  totalAmountForOtherItems += existsInCart.unitPrice * quantity;
-  cart.totalAmount = totalAmountForOtherItems;
-  
+  total += existsInCart.unitPrice * quantity;
+  cart.totalAmount = total;
+
   // Save cart
   const updatedCart = await cart.save();
 
   return { data: updatedCart, statusCode: 200 };
+};
+
+// remove item from cart
+interface RemoveCartItemParams {
+  userId: ObjectId;
+  productId: any;
+}
+export const removeCartItem = async ({
+  userId,
+  productId,
+}: RemoveCartItemParams) => {
+  const { data: cart } = await getActiveCartForUser({ userId }); // destructure data as cart
+
+  const existsInCart = cart.items.find(
+    (item) => item.productId.toString() === productId,
+  );
+  if (!existsInCart) {
+    return { data: { message: "Product not in cart" }, statusCode: 404 };
+  }
+
+  const otherCartItems = cart.items.filter(
+    (item) => item.productId.toString() !== productId,
+  );
+
+  cart.items = otherCartItems;
+  cart.totalAmount = totalAmountForOtherItems({ cartItems: otherCartItems });
+
+  // Save cart
+  const updatedCart = await cart.save();
+
+  return { data: updatedCart, statusCode: 200 };
+};
+
+//* Additional cart-related service functions
+// Helper function to calculate total amount for cart items
+const totalAmountForOtherItems = ({
+  cartItems,
+}: {
+  cartItems: ICartItem[];
+}) => {
+  let total = cartItems.reduce(
+    (sum, item) => sum + item.unitPrice * item.quantity,
+    0,
+  );
+
+  return total;
 };
