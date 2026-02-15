@@ -18,7 +18,7 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { useAuthContext } from "../context/auth/AuthContext";
 
 function NavBar() {
-  const { username, isAuthenticated } = useAuthContext();
+  const { username, isAuthenticated, logout } = useAuthContext();
   const navigate = useNavigate();
 
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
@@ -31,6 +31,11 @@ function NavBar() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+  const handleLogout = () => {
+    handleCloseUserMenu();
+    logout();
+    navigate("/");
   };
 
   return (
@@ -100,7 +105,7 @@ function NavBar() {
                 Dula-Shop
               </Typography>
             </Box>
-            
+
             <Box sx={{ flexGrow: 0 }}>
               {isAuthenticated ? (
                 <>
@@ -140,7 +145,7 @@ function NavBar() {
                         My Orders
                       </Typography>
                     </MenuItem>
-                    <MenuItem onClick={handleCloseUserMenu}>
+                    <MenuItem onClick={handleLogout}>
                       <Typography sx={{ textAlign: "center" }}>
                         Logout
                       </Typography>
