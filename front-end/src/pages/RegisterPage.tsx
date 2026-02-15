@@ -1,6 +1,7 @@
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useRef, useState } from "react";
 import { BASE_URL } from "../constants/baseUrl";
+import { useAuthContext } from "../context/auth/AuthContext";
 
 export default function RegisterPage() {
   const [err, setErr] = useState("");
@@ -10,11 +11,21 @@ export default function RegisterPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
+  // custom hooks
+  const { login } = useAuthContext();
+
+  // handleSubmit function
   const handleSubmit = async () => {
     const firstNameValue = firstNameRef.current?.value;
     const lastNameValue = lastNameRef.current?.value;
     const emailValue = emailRef.current?.value;
     const passwordValue = passwordRef.current?.value;
+
+    // Validate that all fields are filled
+    if (!firstNameValue || !lastNameValue || !emailValue || !passwordValue) {
+      setErr("Please fill in all fields");
+      return;
+    }
 
     // Make the call to API to create the user
     const response = await fetch(`${BASE_URL}/user/register`, {
@@ -29,15 +40,24 @@ export default function RegisterPage() {
         password: passwordValue,
       }),
     });
+
     // Log the response from the API
     const data = await response.json();
-    console.log("API Response:", data);
-    
+    console.log("API Response:", data); //* for debugging purposes
+
     if (!response.ok) {
       setErr(data);
       return;
     }
+
+    if (!data) {
+      setErr("Incorrect Token");
+      return;
+    }
+
+    login(emailValue, data);
   };
+  //** end handleSubmit function
 
   return (
     <Container>
@@ -94,7 +114,11 @@ export default function RegisterPage() {
           <Button onClick={handleSubmit} variant="contained">
             Register
           </Button>
-          {err && <Typography sx={{textAlign:"center"}} color="error">{err}</Typography>}
+          {err && (
+            <Typography sx={{ textAlign: "center" }} color="error">
+              {err}
+            </Typography>
+          )}
         </Box>
       </Box>
     </Container>
