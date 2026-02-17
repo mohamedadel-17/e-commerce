@@ -9,8 +9,8 @@ interface ICartItem {
     _id: string;
     title: string;
     image: string;
-    unitPrice: number;
   };
+  unitPrice: number;
   quantity: number;
 }
 
@@ -46,7 +46,7 @@ const CartProvider: FC<PropsWithChildren> = ({ children }) => {
           productId: item.productId._id,
           title: item.productId.title,
           image: item.productId.image,
-          unitPrice: item.productId.unitPrice,
+          unitPrice: item.unitPrice,
           quantity: item.quantity,
         }));
       }
@@ -88,7 +88,7 @@ const CartProvider: FC<PropsWithChildren> = ({ children }) => {
           productId: item.productId._id,
           title: item.productId.title,
           image: item.productId.image,
-          unitPrice: item.productId.unitPrice,
+          unitPrice: item.unitPrice,
           quantity: item.quantity,
         }));
       }
