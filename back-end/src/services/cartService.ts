@@ -1,7 +1,7 @@
 // Functions:
 // - get active cart for a user
+// - add item to cart
 // - clear cart
-// - ccccccccc
 // - update item quantity in cart
 // - remove item from cart
 // - checkout cart
@@ -152,9 +152,10 @@ export const updateCartItem = async ({
 
   // Save cart
   await cart.save();
-
+  const updatedCart = await getActiveCartForUser({ userId, populateProducts: true });
+  
   return {
-    data: await getActiveCartForUser({ userId, populateProducts: true }),
+    data: updatedCart.data,
     statusCode: 200,
   };
 };
@@ -187,9 +188,10 @@ export const removeCartItem = async ({
 
   // Save cart
   await cart.save();
+  const updatedCart = await getActiveCartForUser({ userId, populateProducts: true });
 
   return {
-    data: await getActiveCartForUser({ userId, populateProducts: true }),
+    data: updatedCart.data,
     statusCode: 200,
   };
 };
