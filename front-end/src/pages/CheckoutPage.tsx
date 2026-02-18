@@ -1,16 +1,59 @@
 import { Box, Container, TextField, Typography } from "@mui/material";
-import { useCartContext } from "../context/cart/CartContext";
 import type { CartItem } from "../types/CartItem";
 import Button from "@mui/material/Button";
-import { use, useRef } from "react";
+import { useRef, useState } from "react";
+import { BASE_URL } from "../constants/baseUrl";
+import { useAuthContext } from "../context/auth/AuthContext";
+import { useCartContext } from "../context/cart/CartContext";
+import { useNavigate } from "react-router-dom";
 
 export default function CartPage() {
   const { cartItems, totalAmount } = useCartContext();
-  const addressRef = useRef<HTMLInputElement>(null);
+  const { token } = useAuthContext();
+  const addressRef = useRef<HTMLInputElement>(null); // const [totalAmount, setTotalAmount] = useState<number>(0);
+  const navigate = useNavigate();
+  const [err, setErr] = useState<string>("");
+
+  const handleCheckout = async () => {
+    const address = addressRef.current?.value;
+    if (!address) {
+      alert("Please enter a delivery address.");
+      return;
+    }
+
+    setErr("");
+    if (!token) {
+      setErr("You must be logged in to add items to the cart.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/cart/checkout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ address }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErr(data.message);
+        console.log("Error:", err); //? for debugging purposes
+        return;
+      }
+
+      navigate("/order-success");
+    } catch (error) {
+      console.error("Error checkout process:", error);
+    }
+  };
 
   return (
     <Container sx={{ mt: 4 }}>
-        {/* title */}
+      {/* title */}
       <Box
         sx={{
           mt: 4,
@@ -32,7 +75,6 @@ export default function CartPage() {
           mr: 15,
           ml: 15,
           mt: 2,
-
         }}
       >
         {/* container for cart items */}
@@ -41,14 +83,15 @@ export default function CartPage() {
             display: "flex",
             flexDirection: "column",
             gap: 1,
-          }}>
-        {cartItems.map((item: CartItem) => (
+          }}
+        >
+          {cartItems.map((item: CartItem) => (
             // each cart item
             <Box
               sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
                 width: "100%",
               }}
             >
@@ -69,7 +112,7 @@ export default function CartPage() {
                 </Typography>
               </Box>
             </Box>
-        ))}
+          ))}
         </Box>
         {/* total amount */}
         <Box
@@ -92,14 +135,23 @@ export default function CartPage() {
         </Box>
       </Box>
       {/* pay now button */}
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 2, flexDirection: "column", gap: 2 }}>
-        <TextField inputRef={addressRef} label="Delivery Address" variant="outlined"/>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          mt: 2,
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
+        <TextField
+          inputRef={addressRef}
+          label="Delivery Address"
+          variant="outlined"
+        />
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => alert("Payment processed!")}
-        >
+        <Button variant="contained" color="primary" onClick={handleCheckout}>
           Pay Now
         </Button>
       </Box>
