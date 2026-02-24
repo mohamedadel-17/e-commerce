@@ -8,7 +8,7 @@ import { useCartContext } from "../context/cart/CartContext";
 import { useNavigate } from "react-router-dom";
 
 export default function CartPage() {
-  const { cartItems, totalAmount } = useCartContext();
+  const { cartItems, totalAmount, clearCart } = useCartContext();
   const { token } = useAuthContext();
   const addressRef = useRef<HTMLInputElement>(null); // const [totalAmount, setTotalAmount] = useState<number>(0);
   const navigate = useNavigate();
@@ -45,7 +45,9 @@ export default function CartPage() {
         return;
       }
 
+      clearCart();
       navigate("/order-success");
+
     } catch (error) {
       console.error("Error checkout process:", error);
     }

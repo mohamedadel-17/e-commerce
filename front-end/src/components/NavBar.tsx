@@ -17,7 +17,7 @@ import {
   styled,
   type BadgeProps,
 } from "@mui/material";
-import AdbIcon from "@mui/icons-material/Adb";
+import PhoneAndroidTwoToneIcon from '@mui/icons-material/PhoneAndroidTwoTone';
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useAuthContext } from "../context/auth/AuthContext";
 import { useCartContext } from "../context/cart/CartContext";
@@ -77,9 +77,8 @@ function NavBar() {
                 cursor: "pointer",
               }}
               onClick={() => navigate("/")}
-              
             >
-              <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+              <PhoneAndroidTwoToneIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
               <Typography
                 variant="h6"
                 noWrap
@@ -93,7 +92,7 @@ function NavBar() {
                   // color: "inherit",
                 }}
               >
-                Dula-Shop
+                Electro
               </Typography>
             </Box>
 
@@ -106,7 +105,7 @@ function NavBar() {
               }}
               onClick={() => navigate("/")}
             >
-              <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+              <PhoneAndroidTwoToneIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
               <Typography
                 variant="h5"
                 noWrap
@@ -123,7 +122,7 @@ function NavBar() {
                   textDecoration: "none",
                 }}
               >
-                Dula-Shop
+                Electro
               </Typography>
             </Box>
 
@@ -181,7 +180,13 @@ function NavBar() {
                     onClose={handleCloseUserMenu}
                   >
                     <MenuItem onClick={handleCloseUserMenu}>
-                      <Typography sx={{ textAlign: "center" }}>
+                      <Typography
+                        sx={{ textAlign: "center" }}
+                        onClick={() => {
+                          navigate("/my-orders-success");
+                          handleCloseUserMenu();
+                        }}
+                      >
                         My Orders
                       </Typography>
                     </MenuItem>

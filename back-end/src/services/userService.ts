@@ -1,6 +1,8 @@
 import { userModel } from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import orderModel from "../models/orderModel.js";
+import type { ObjectId } from "mongoose";
 
 interface RegisterParams {
   firstName: string;
@@ -33,7 +35,7 @@ export const register = async ({
     statusCode: 201,
   };
 };
-//* end register function *//
+// end register function */
 
 interface LoginParams {
   email: string;
@@ -59,7 +61,20 @@ export const login = async ({ email, password }: LoginParams) => {
     statusCode: 200,
   };
 };
-//* end login function *//
+// end login function */
+
+interface GetMyOrdersParams {
+  userId: ObjectId;
+}
+//* get my orders
+export const getMyOrders = async ({ userId }: GetMyOrdersParams) => {
+  try {
+    const data = await orderModel.find({ userId });
+    return { data: data, statusCode: 200 };
+  } catch (err) {
+    return { data: err, statusCode: 400 };
+  }
+};
 
 const generateToken = (data: any) => {
   return jwt.sign(

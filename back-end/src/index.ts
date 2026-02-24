@@ -30,6 +30,24 @@ app.use("/user", userRoute);
 app.use("/products", productRoute);
 app.use("/cart", cartRoute);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
+// app.listen(process.env.PORT, () => {
+//   console.log(`Server is running on port ${process.env.PORT}`);
+// });
+
+
+const connectDB = async () => {
+  try {
+    if (mongoose.connection.readyState >= 1) return;
+    await mongoose.connect(process.env.MONGODB_URI!);
+    console.log("MongoDB Connected");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+  }
+};
+
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
 });
+
+export default app;

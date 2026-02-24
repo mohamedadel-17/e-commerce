@@ -20,11 +20,30 @@ interface ICartItem {
   quantity: number;
 }
 
+interface OrderItem {
+  productTitle: string;
+  productImage: string;
+  unitPrice: number;
+  quantity: number;
+  _id: string;
+}
+
+interface Order {
+  _id: string;
+  orderItems: OrderItem[];
+  total: number;
+  address: string;
+  userId: string;
+  createdAt: string;
+  __v: number;
+}
+
 const CartProvider: FC<PropsWithChildren> = ({ children }) => {
   const { token } = useAuthContext();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [err, setErr] = useState<string>("");
+  const [myOrders, setMyOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     if (!token) {
@@ -221,6 +240,35 @@ const CartProvider: FC<PropsWithChildren> = ({ children }) => {
   };
   // end clear all items from cart */
 
+  //* get my orders
+  const getMyOrders = async () => {
+    setErr("");
+    if (!token) {
+      setErr("You must be logged in to clear the cart.");
+      return;
+    }
+    try {
+      const res = await fetch(`${BASE_URL}/user/my-orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErr(data.message);
+        console.log("Error:", err); //? for debugging purposes
+        return;
+      }
+
+      setMyOrders(data);
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    }
+  };
+  // end get my orders */
+
   return (
     <CartContext.Provider
       value={{
@@ -230,6 +278,8 @@ const CartProvider: FC<PropsWithChildren> = ({ children }) => {
         updateItemInCart,
         removeItem,
         clearCart,
+        getMyOrders,
+        myOrders,
       }}
     >
       {children}
